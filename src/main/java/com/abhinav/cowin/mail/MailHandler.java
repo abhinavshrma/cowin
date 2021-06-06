@@ -23,7 +23,6 @@ public class MailHandler {
     	try {
         SimpleMailMessage msg = new SimpleMailMessage();
         //msg.setTo("to_1@gmail.com", "to_2@gmail.com", "to_3@yahoo.com");
-        //msg.setTo("prtksharma01@gmail.com","palak.arora070@gmail.com");
         msg.setTo("theabhinavsharma@hotmail.com");
         msg.setSubject("Mohali "+vaccine+" Snapshot");
         msg.setText(text);
