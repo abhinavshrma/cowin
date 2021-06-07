@@ -21,13 +21,13 @@ public class ServiceHandler {
 	MailHandler mailHandler;
 	
 	
-	@Scheduled(cron = "0 0/50 * * * *")
+	//@Scheduled(cron = "0 0/50 * * * *")
 	public void cronJobSchCovax() throws Exception {
 		System.out.println(new Date()+"-----"+"Executing start process...COVAXIN..");
 		start("COVAXIN");
 	}
 	
-	@Scheduled(cron = "0 0/45 * * * *")
+	//@Scheduled(cron = "0 0/45 * * * *")
 	public void cronJobSchCovi() throws Exception {
 		System.out.println(new Date()+"-----"+"Executing start process...COVISHIELD..");
 		start("COVISHIELD");
