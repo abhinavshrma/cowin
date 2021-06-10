@@ -45,7 +45,7 @@ public class ServiceHandler {
 		return "Started Successfully";
 	}
 	
-	@GetMapping(value = "/health")
+	@GetMapping(value = "/")
 	public String health() {
 		return "Application is Up and Running!!";
 	}
