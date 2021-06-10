@@ -20,6 +20,11 @@ public class ServiceHandler {
 	@Autowired
 	MailHandler mailHandler;
 	
+	@Scheduled(cron = "0 0 * * * *")
+	public void triggerHourly() {
+		start("COVISHIELD");
+		start("COVAXIN");
+	}
 	
 	//@Scheduled(cron = "0 0/50 * * * *")
 	public void cronJobSchCovax() throws Exception {
