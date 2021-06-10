@@ -45,6 +45,11 @@ public class ServiceHandler {
 		return "Started Successfully";
 	}
 	
+	@GetMapping(value = "/health")
+	public String health() {
+		return "Application is Up and Running!!";
+	}
+	
 	public String start(String vaccine) {
 		List<String> list = new ArrayList<>();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
