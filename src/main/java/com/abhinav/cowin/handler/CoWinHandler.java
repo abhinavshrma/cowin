@@ -48,13 +48,14 @@ public class CoWinHandler {
 	}
 
 	public static List<Session> getDetails(List<Session> sessionsList, String vaccineName) {
-		List<Session> covaxinList = new ArrayList<>();
+		List<Session> vaccineList = new ArrayList<>();
 		for (Session session : sessionsList) {
-			if (session.getVaccine().equals(vaccineName) && session.getMinAgeLimit() == 18) {
-				covaxinList.add(session);
+			if (session.getVaccine().equals(vaccineName) && session.getMinAgeLimit() == 18
+					&& session.getAvailableCapacityDose2() != 0) {
+				vaccineList.add(session);
 			}
 		}
-		return covaxinList;
+		return vaccineList;
 	}
 
 	public static String printDetails(List<Session> list, String date) {
