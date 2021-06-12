@@ -14,8 +14,14 @@ public class MailHandler {
 	@Autowired
     private JavaMailSender javaMailSender;
     
-    public void sendEmail(List<String> list, String vaccine) {
+    public void sendEmail(List<String> list, String vaccine, int districtId) {
     	String text = "";
+    	String city = "";
+    	if(districtId == 496) {
+    		city = "Mohali";
+    	}else if(districtId == 108) {
+    		city = "Chandigarh";
+    	}
     	for (String string : list) {
     		text = text.concat(string);
 		}
@@ -24,7 +30,7 @@ public class MailHandler {
         SimpleMailMessage msg = new SimpleMailMessage();
         //msg.setTo("to_1@gmail.com", "to_2@gmail.com", "to_3@yahoo.com");
         msg.setTo("theabhinavsharma@hotmail.com");
-        msg.setSubject("Mohali "+vaccine+" Snapshot");
+        msg.setSubject(city+" "+vaccine+" Snapshot");
         msg.setText(text);
 
         javaMailSender.send(msg);

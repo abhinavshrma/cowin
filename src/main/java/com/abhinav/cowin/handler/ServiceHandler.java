@@ -20,28 +20,36 @@ public class ServiceHandler {
 	@Autowired
 	MailHandler mailHandler;
 	
-	@Scheduled(cron = "0 0 */3 * * *")
+	@Scheduled(cron = "0 0 */4 * * *")
 	public void triggerHourly() {
-		start("COVISHIELD");
-		start("COVAXIN");
+		//496 - Mohali
+		start("COVISHIELD",496);
+		start("COVAXIN",496);
+		
+		//108- Chandigarh
+		start("COVISHIELD",108);
+		start("COVAXIN",108);	
 	}
 	
 	//@Scheduled(cron = "0 0/50 * * * *")
 	public void cronJobSchCovax() throws Exception {
 		System.out.println(new Date()+"-----"+"Executing start process...COVAXIN..");
-		start("COVAXIN");
+		//start("COVAXIN");
 	}
 	
 	//@Scheduled(cron = "0 0/45 * * * *")
 	public void cronJobSchCovi() throws Exception {
 		System.out.println(new Date()+"-----"+"Executing start process...COVISHIELD..");
-		start("COVISHIELD");
+		//start("COVISHIELD");
 	}
 	
 	@GetMapping(value = "/start")
 	public String startManually(String vaccine) {
-		start("COVISHIELD");
-		start("COVAXIN");
+		start("COVISHIELD",496);
+		start("COVAXIN",496);
+		
+		start("COVISHIELD",108);
+		start("COVAXIN",108);
 		return "Started Successfully";
 	}
 	
@@ -50,7 +58,7 @@ public class ServiceHandler {
 		return "Application is Up and Running!!";
 	}
 	
-	public String start(String vaccine) {
+	public String start(String vaccine, int districtId) {
 		List<String> list = new ArrayList<>();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		for (int i = 0; i < 4; i++) {
@@ -58,7 +66,7 @@ public class ServiceHandler {
 			c.add(Calendar.DATE, i);
 			String date = dateFormat.format(c.getTime());
 			try {
-				list.add(CoWinHandler.printDetails(CoWinHandler.getDetails(CoWinHandler.getSessionsByDistrict(496, date), vaccine), date));
+				list.add(CoWinHandler.printDetails(CoWinHandler.getDetails(CoWinHandler.getSessionsByDistrict(districtId, date), vaccine), date));
 				//list.add(CoWinHandler.printDetails(CoWinHandler.getDetails(CoWinHandler.getSessionsByDistrict(496, date), "COVISHIELD"), date));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -71,7 +79,7 @@ public class ServiceHandler {
 		 * System.out.println(list.get(2)); System.out.println(list.get(3));
 		 */
 		System.out.println("Sending Mail........");
-		mailHandler.sendEmail(list,vaccine);
+		mailHandler.sendEmail(list,vaccine,districtId);
 		return "Started Successfully";
 	}
 
