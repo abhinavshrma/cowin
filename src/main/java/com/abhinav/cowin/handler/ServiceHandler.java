@@ -20,6 +20,8 @@ public class ServiceHandler {
 	@Autowired
 	MailHandler mailHandler;
 	
+	private static String daysForDataFetch = "cowin.vaccine.data.days";
+	
 	@Scheduled(cron = "0 0 */4 * * *")
 	public void triggerHourly() {
 		//496 - Mohali
@@ -55,7 +57,7 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!! - V1.0";
+		return "Application is Up and Running!! - v1.1";
 	}
 	
 	public String start(String vaccine, int districtId) {
@@ -63,7 +65,7 @@ public class ServiceHandler {
 		CoWinHandler.totalDose1Map.clear();
 		CoWinHandler.totalDose2Map.clear();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < Integer.parseInt(CoWinHandler.propertiesUtility(daysForDataFetch)); i++) {
 			Calendar c = Calendar.getInstance();
 			c.add(Calendar.DATE, i);
 			String date = dateFormat.format(c.getTime());

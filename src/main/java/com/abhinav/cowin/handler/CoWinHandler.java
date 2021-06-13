@@ -106,7 +106,7 @@ public class CoWinHandler {
 		return sb.toString();
 	}
 	
-	private static String propertiesUtility(String key) {
+	public static String propertiesUtility(String key) {
 		Properties properties = new Properties();
 		InputStream inputStream = CoWinHandler.class.getClassLoader().getResourceAsStream("application.properties");
 		try {
