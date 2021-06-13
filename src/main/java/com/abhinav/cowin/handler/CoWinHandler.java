@@ -2,15 +2,21 @@ package com.abhinav.cowin.handler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.abhinav.cowin.pojo.ResponseSession;
 import com.abhinav.cowin.pojo.Session;
@@ -20,6 +26,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CoWinHandler {
 	
+	public static Map<String,Integer> totalDose1Map = new HashMap<>();
+	public static Map<String,Integer> totalDose2Map = new HashMap<>();
+	
+	private static String isVaccineDetailsEnabled = "cowin.vaccine.details.enabled" ;
+		
 	public static List<Session> getSessionsByDistrict(int districtId,String date)
 			throws MalformedURLException, IOException, JsonProcessingException, JsonMappingException {
 		URL url = new URL("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+districtId+"&date="+date+"");
@@ -53,6 +64,16 @@ public class CoWinHandler {
 			if (session.getVaccine().equals(vaccineName) && session.getMinAgeLimit() == 18
 					&& session.getAvailableCapacityDose2() != 0) {
 				vaccineList.add(session);
+				if (null != totalDose1Map.get(vaccineName) && null != totalDose2Map.get(vaccineName)) {
+					totalDose1Map.put(vaccineName,
+							totalDose1Map.get(vaccineName) + session.getAvailableCapacityDose1());
+					totalDose2Map.put(vaccineName,
+							totalDose2Map.get(vaccineName) + session.getAvailableCapacityDose2());
+				}else {
+					totalDose1Map.put(vaccineName, session.getAvailableCapacityDose1());
+					totalDose2Map.put(vaccineName, session.getAvailableCapacityDose2());
+				}
+				
 			}
 		}
 		return vaccineList;
@@ -60,20 +81,41 @@ public class CoWinHandler {
 
 	public static String printDetails(List<Session> list, String date) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("18+ Slots for date = " + date);		
+		sb.append("18+ Slots for date = " + date);
 		sb.append("\n");
 		if (!list.isEmpty()) {
-			for (Session session : list) {
-				sb.append(session.getName() + ", " + session.getBlockName() + ": Vaccine="
-						+ session.getVaccine() + ", Dose1 Available=" + session.getAvailableCapacityDose1()
-						+ ", Dose2 Available=" + session.getAvailableCapacityDose2());
-				sb.append("\n");
+			if ("true".equals(propertiesUtility(isVaccineDetailsEnabled))) {
+				for (Session session : list) {
+					sb.append(session.getName() + ", " + session.getBlockName() + ": Vaccine=" + session.getVaccine()
+							+ ", Dose1 Available=" + session.getAvailableCapacityDose1() + ", Dose2 Available="
+							+ session.getAvailableCapacityDose2());
+					sb.append("\n");
+				}
 			}
+			sb.append("**Total Dose1 for " + list.get(0).getVaccine() + " = "
+					+ totalDose1Map.get(list.get(0).getVaccine()));
+			sb.append("\n**Total Dose2 for " + list.get(0).getVaccine() + " = "
+					+ totalDose2Map.get(list.get(0).getVaccine()));
+			sb.append("\n");
 		} else {
 			sb.append("No Slots Available!\n");
 		}
+		totalDose1Map.clear();
+		totalDose2Map.clear();
 		sb.append("\n");
 		return sb.toString();
+	}
+	
+	private static String propertiesUtility(String key) {
+		Properties properties = new Properties();
+		InputStream inputStream = CoWinHandler.class.getClassLoader().getResourceAsStream("application.properties");
+		try {
+			properties.load(inputStream);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return properties.getProperty(key);
 	}
 
 }

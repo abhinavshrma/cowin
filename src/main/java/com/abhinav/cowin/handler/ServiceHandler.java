@@ -55,11 +55,13 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!!";
+		return "Application is Up and Running!! - V1.0";
 	}
 	
 	public String start(String vaccine, int districtId) {
 		List<String> list = new ArrayList<>();
+		CoWinHandler.totalDose1Map.clear();
+		CoWinHandler.totalDose2Map.clear();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		for (int i = 0; i < 4; i++) {
 			Calendar c = Calendar.getInstance();
