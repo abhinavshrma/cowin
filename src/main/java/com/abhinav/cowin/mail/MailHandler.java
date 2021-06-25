@@ -8,6 +8,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+import com.abhinav.cowin.utils.Utils;
+
 @Component
 public class MailHandler {
 	
@@ -16,12 +18,6 @@ public class MailHandler {
     
     public void sendEmail(List<String> list, String vaccine, int districtId) {
     	String text = "";
-    	String city = "";
-    	if(districtId == 496) {
-    		city = "Mohali";
-    	}else if(districtId == 108) {
-    		city = "Chandigarh";
-    	}
     	for (String string : list) {
     		text = text.concat(string);
 		}
@@ -30,7 +26,7 @@ public class MailHandler {
         SimpleMailMessage msg = new SimpleMailMessage();
         //msg.setTo("to_1@gmail.com", "to_2@gmail.com", "to_3@yahoo.com");
         msg.setTo("theabhinavsharma@hotmail.com");
-        msg.setSubject(city+" "+vaccine+" Snapshot");
+        msg.setSubject(Utils.getCity(districtId)+" "+vaccine+" Snapshot");
         msg.setText(text);
 
         javaMailSender.send(msg);

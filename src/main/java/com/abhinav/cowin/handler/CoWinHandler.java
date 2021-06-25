@@ -15,23 +15,30 @@ import java.util.Properties;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.abhinav.cowin.pojo.ResponseSession;
 import com.abhinav.cowin.pojo.Session;
+import com.abhinav.cowin.pojo.Statistics;
+import com.abhinav.cowin.pojo.StatisticsKey;
+import com.abhinav.cowin.repository.CoWinRepository;
+import com.abhinav.cowin.utils.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+@Component
 public class CoWinHandler {
 	
-	public static Map<String,Integer> totalDose1Map = new HashMap<>();
-	public static Map<String,Integer> totalDose2Map = new HashMap<>();
+	@Autowired
+	public CoWinRepository coWinRepository;
 	
-	private static String isVaccineDetailsEnabled = "cowin.vaccine.details.enabled" ;
+	public Map<String,Integer> totalDose1Map = new HashMap<>();
+	public Map<String,Integer> totalDose2Map = new HashMap<>();
+	
+	private String isVaccineDetailsEnabled = "cowin.vaccine.details.enabled" ;
 		
-	public static List<Session> getSessionsByDistrict(int districtId,String date)
+	public List<Session> getSessionsByDistrict(int districtId,String date)
 			throws MalformedURLException, IOException, JsonProcessingException, JsonMappingException {
 		URL url = new URL("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+districtId+"&date="+date+"");
 		//URL url = new URL("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=160062&date=05-06-2021");
@@ -58,7 +65,7 @@ public class CoWinHandler {
 		}
 	}
 
-	public static List<Session> getDetails(List<Session> sessionsList, String vaccineName) {
+	public List<Session> getDetails(List<Session> sessionsList, String vaccineName) {
 		List<Session> vaccineList = new ArrayList<>();
 		for (Session session : sessionsList) {
 			if (session.getVaccine().equals(vaccineName) && session.getMinAgeLimit() == 18
@@ -79,7 +86,7 @@ public class CoWinHandler {
 		return vaccineList;
 	}
 
-	public static String printDetails(List<Session> list, String date) {
+	public String printDetails(List<Session> list, String date) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("18+ Slots for date = " + date);
 		sb.append("\n");
@@ -103,6 +110,47 @@ public class CoWinHandler {
 		totalDose1Map.clear();
 		totalDose2Map.clear();
 		sb.append("\n");
+		return sb.toString();
+	}
+	
+	public String printDetails(List<Session> list, String date,String vaccineName, int districtId, char eventCd) {
+		StringBuffer sb = new StringBuffer();
+		StatisticsKey key = new StatisticsKey();
+		Statistics stats = new Statistics();
+		key.setSlotDate(date);
+		key.setVaccineName(vaccineName);
+		key.setSystemDate(Utils.getDateToday());
+		key.setEventCd(eventCd);
+		key.setCity(Utils.getCity(districtId));
+		stats.setStatisticsKey(key);
+		sb.append("18+ Slots for date = " + date);
+		sb.append("\n");
+		if (!list.isEmpty()) {
+			if ("true".equals(propertiesUtility(isVaccineDetailsEnabled))) {
+				for (Session session : list) {
+					sb.append(session.getName() + ", " + session.getBlockName() + ": Vaccine=" + vaccineName
+							+ ", Dose1 Available=" + session.getAvailableCapacityDose1() + ", Dose2 Available="
+							+ session.getAvailableCapacityDose2());
+					sb.append("\n");
+				}
+			}
+			sb.append("**Total Dose1 for " + vaccineName + " = "
+					+ totalDose1Map.get(vaccineName));
+			sb.append("\n**Total Dose2 for " + vaccineName + " = "
+					+ totalDose2Map.get(vaccineName));
+			sb.append("\n");
+			stats.setTotalDose1(totalDose1Map.get(vaccineName));
+			stats.setTotalDose2(totalDose2Map.get(vaccineName));
+		} else {
+			sb.append("No Slots Available!\n");
+			stats.setTotalDose1(0);
+			stats.setTotalDose2(0);
+		}
+		totalDose1Map.clear();
+		totalDose2Map.clear();
+		sb.append("\n");
+		coWinRepository.save(stats);
+		//System.out.println(stats.toString());
 		return sb.toString();
 	}
 	

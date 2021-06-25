@@ -20,17 +20,42 @@ public class ServiceHandler {
 	@Autowired
 	MailHandler mailHandler;
 	
+	@Autowired
+	CoWinHandler cowinHandler;
+	
 	private static String daysForDataFetch = "cowin.vaccine.data.days";
 	
-	@Scheduled(cron = "0 0 */4 * * *")
+	//@Scheduled(cron = "0 0 */4 * * *")
 	public void triggerHourly() {
 		//496 - Mohali
-		start("COVISHIELD",496);
-		start("COVAXIN",496);
+		//start("COVISHIELD",496);
+		//start("COVAXIN",496);
 		
 		//108- Chandigarh
-		start("COVISHIELD",108);
-		start("COVAXIN",108);	
+		//start("COVISHIELD",108);
+		//start("COVAXIN",108);	
+	}
+	
+	@Scheduled(cron = "0 0 8 * * *")
+	public void trigger8AM() {
+		//496 - Mohali
+		start("COVISHIELD",496,'O');
+		start("COVAXIN",496,'O');
+		
+		//108- Chandigarh
+		start("COVISHIELD",108,'O');
+		start("COVAXIN",108,'O');	
+	}
+	
+	@Scheduled(cron = "0 0 20 * * *")
+	public void trigger8PM() {
+		//496 - Mohali
+		start("COVISHIELD",496,'C');
+		start("COVAXIN",496,'C');
+		
+		//108- Chandigarh
+		start("COVISHIELD",108,'C');
+		start("COVAXIN",108,'C');	
 	}
 	
 	//@Scheduled(cron = "0 0/50 * * * *")
@@ -47,11 +72,11 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/start")
 	public String startManually(String vaccine) {
-		start("COVISHIELD",496);
-		start("COVAXIN",496);
+		start("COVISHIELD",496,'T');
+		start("COVAXIN",496,'T');
 		
-		start("COVISHIELD",108);
-		start("COVAXIN",108);
+		start("COVISHIELD",108,'T');
+		start("COVAXIN",108,'T');
 		return "Started Successfully";
 	}
 	
@@ -60,18 +85,20 @@ public class ServiceHandler {
 		return "Application is Up and Running!! - v1.1";
 	}
 	
-	public String start(String vaccine, int districtId) {
+	public String start(String vaccine, int districtId,char eventCd) {
 		List<String> list = new ArrayList<>();
-		CoWinHandler.totalDose1Map.clear();
-		CoWinHandler.totalDose2Map.clear();
+		cowinHandler.totalDose1Map.clear();
+		cowinHandler.totalDose2Map.clear();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		for (int i = 0; i < Integer.parseInt(CoWinHandler.propertiesUtility(daysForDataFetch)); i++) {
 			Calendar c = Calendar.getInstance();
 			c.add(Calendar.DATE, i);
 			String date = dateFormat.format(c.getTime());
 			try {
-				list.add(CoWinHandler.printDetails(CoWinHandler.getDetails(CoWinHandler.getSessionsByDistrict(districtId, date), vaccine), date));
-				//list.add(CoWinHandler.printDetails(CoWinHandler.getDetails(CoWinHandler.getSessionsByDistrict(496, date), "COVISHIELD"), date));
+				//list.add(CoWinHandler.printDetails(CoWinHandler.getDetails(CoWinHandler.getSessionsByDistrict(districtId, date), vaccine), date));
+				list.add(cowinHandler.printDetails(
+						cowinHandler.getDetails(cowinHandler.getSessionsByDistrict(districtId, date), vaccine), date,
+						vaccine, districtId,eventCd));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
