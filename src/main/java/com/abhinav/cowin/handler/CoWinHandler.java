@@ -2,7 +2,6 @@ package com.abhinav.cowin.handler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -41,7 +39,6 @@ public class CoWinHandler {
 	public List<Session> getSessionsByDistrict(int districtId,String date)
 			throws MalformedURLException, IOException, JsonProcessingException, JsonMappingException {
 		URL url = new URL("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id="+districtId+"&date="+date+"");
-		//URL url = new URL("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=160062&date=05-06-2021");
 		System.out.println("Going to CoWin to fetch data for date "+date);
 		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0");
@@ -91,7 +88,7 @@ public class CoWinHandler {
 		sb.append("18+ Slots for date = " + date);
 		sb.append("\n");
 		if (!list.isEmpty()) {
-			if ("true".equals(propertiesUtility(isVaccineDetailsEnabled))) {
+			if ("true".equals(Utils.propertiesUtility(isVaccineDetailsEnabled))) {
 				for (Session session : list) {
 					sb.append(session.getName() + ", " + session.getBlockName() + ": Vaccine=" + session.getVaccine()
 							+ ", Dose1 Available=" + session.getAvailableCapacityDose1() + ", Dose2 Available="
@@ -126,7 +123,7 @@ public class CoWinHandler {
 		sb.append("18+ Slots for date = " + date);
 		sb.append("\n");
 		if (!list.isEmpty()) {
-			if ("true".equals(propertiesUtility(isVaccineDetailsEnabled))) {
+			if ("true".equals(Utils.propertiesUtility(isVaccineDetailsEnabled))) {
 				for (Session session : list) {
 					sb.append(session.getName() + ", " + session.getBlockName() + ": Vaccine=" + vaccineName
 							+ ", Dose1 Available=" + session.getAvailableCapacityDose1() + ", Dose2 Available="
@@ -150,20 +147,6 @@ public class CoWinHandler {
 		totalDose2Map.clear();
 		sb.append("\n");
 		coWinRepository.save(stats);
-		//System.out.println(stats.toString());
 		return sb.toString();
 	}
-	
-	public static String propertiesUtility(String key) {
-		Properties properties = new Properties();
-		InputStream inputStream = CoWinHandler.class.getClassLoader().getResourceAsStream("application.properties");
-		try {
-			properties.load(inputStream);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return properties.getProperty(key);
-	}
-
 }

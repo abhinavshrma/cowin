@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abhinav.cowin.mail.MailHandler;
+import com.abhinav.cowin.utils.Utils;
 
 @RestController
 public class ServiceHandler {
@@ -22,6 +22,9 @@ public class ServiceHandler {
 	
 	@Autowired
 	CoWinHandler cowinHandler;
+	
+	@Autowired
+	CSVHandler csvHandler;
 	
 	private static String daysForDataFetch = "cowin.vaccine.data.days";
 	
@@ -58,16 +61,9 @@ public class ServiceHandler {
 		start("COVAXIN",108,'C');	
 	}
 	
-	//@Scheduled(cron = "0 0/50 * * * *")
-	public void cronJobSchCovax() throws Exception {
-		System.out.println(new Date()+"-----"+"Executing start process...COVAXIN..");
-		//start("COVAXIN");
-	}
-	
-	//@Scheduled(cron = "0 0/45 * * * *")
-	public void cronJobSchCovi() throws Exception {
-		System.out.println(new Date()+"-----"+"Executing start process...COVISHIELD..");
-		//start("COVISHIELD");
+	@Scheduled(cron = "0 0 23 * * *")
+	public void takeDailyBackup() {
+		backUpData();	
 	}
 	
 	@GetMapping(value = "/start")
@@ -82,7 +78,7 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!! - v2.1";
+		return "Application is Up and Running!! - v3.1";
 	}
 	
 	public String start(String vaccine, int districtId,char eventCd) {
@@ -90,12 +86,11 @@ public class ServiceHandler {
 		cowinHandler.totalDose1Map.clear();
 		cowinHandler.totalDose2Map.clear();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-		for (int i = 0; i < Integer.parseInt(CoWinHandler.propertiesUtility(daysForDataFetch)); i++) {
+		for (int i = 0; i < Integer.parseInt(Utils.propertiesUtility(daysForDataFetch)); i++) {
 			Calendar c = Calendar.getInstance();
 			c.add(Calendar.DATE, i);
 			String date = dateFormat.format(c.getTime());
 			try {
-				//list.add(CoWinHandler.printDetails(CoWinHandler.getDetails(CoWinHandler.getSessionsByDistrict(districtId, date), vaccine), date));
 				list.add(cowinHandler.printDetails(
 						cowinHandler.getDetails(cowinHandler.getSessionsByDistrict(districtId, date), vaccine), date,
 						vaccine, districtId,eventCd));
@@ -103,15 +98,19 @@ public class ServiceHandler {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			// System.out.println(printDetails(getDetails(getSessionsByDistrict(496,date),"COVISHIELD"),date));
 		}
-		/*
-		 * System.out.println(list.get(0)); System.out.println(list.get(1));
-		 * System.out.println(list.get(2)); System.out.println(list.get(3));
-		 */
 		System.out.println("Sending Mail........");
 		mailHandler.sendEmail(list,vaccine,districtId);
 		return "Started Successfully";
+	}
+	
+	@GetMapping(value = "/backup")
+	public String backUpData() {
+		if (csvHandler.generateCSV() == 0) {
+			return "Backup Generated Successfully!!";
+		} else {
+			return "Could not create backup!!";
+		}
 	}
 
 }

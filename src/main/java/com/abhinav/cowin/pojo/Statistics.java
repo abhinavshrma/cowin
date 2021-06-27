@@ -34,5 +34,4 @@ public class Statistics {
 		return "Statistics [statisticsKey=" + statisticsKey + ", totalDose1=" + totalDose1 + ", totalDose2="
 				+ totalDose2 + "]";
 	}
-	
 }
