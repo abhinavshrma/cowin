@@ -39,8 +39,8 @@ public class ServiceHandler {
 		//start("COVAXIN",108);	
 	}
 	
-	@Scheduled(cron = "0 0 8 * * *")
-	public void trigger8AM() {
+	@Scheduled(cron = "0 0 9 * * *")
+	public void trigger9AM() {
 		//496 - Mohali
 		start("COVISHIELD",496,'O');
 		start("COVAXIN",496,'O');
@@ -50,8 +50,8 @@ public class ServiceHandler {
 		start("COVAXIN",108,'O');	
 	}
 	
-	@Scheduled(cron = "0 0 20 * * *")
-	public void trigger8PM() {
+	@Scheduled(cron = "0 0 21 * * *")
+	public void trigger9PM() {
 		//496 - Mohali
 		start("COVISHIELD",496,'C');
 		start("COVAXIN",496,'C');
@@ -78,7 +78,7 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!! - v3.2";
+		return "Application is Up and Running!! - v3.3";
 	}
 	
 	public String start(String vaccine, int districtId,char eventCd) {
