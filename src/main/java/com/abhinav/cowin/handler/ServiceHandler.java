@@ -128,7 +128,8 @@ public class ServiceHandler {
 			set.addAll(listMhl);			
 			List<StatsLocation> newList = new ArrayList<StatsLocation>();
 			for (Session session : set) {
-				if (session.getMinAgeLimit() == 18 && session.getVaccine().equalsIgnoreCase(vaccine)) {
+				if (session.getMinAgeLimit() == 18 && session.getVaccine().equalsIgnoreCase(vaccine)
+						&& session.getAvailableCapacityDose2().intValue() != 0) {
 					newList.add(new StatsLocation(session.getName(), session.getAddress(), session.getFee(),
 							session.getAvailableCapacityDose1(), session.getAvailableCapacityDose2()));
 				}
