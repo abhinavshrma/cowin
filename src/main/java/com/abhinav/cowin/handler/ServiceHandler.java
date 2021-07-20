@@ -4,14 +4,19 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abhinav.cowin.mail.MailHandler;
+import com.abhinav.cowin.pojo.Session;
+import com.abhinav.cowin.pojo.StatsLocation;
 import com.abhinav.cowin.utils.Utils;
 
 @RestController
@@ -78,7 +83,7 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!! - v3.5";
+		return "Application is Up and Running!! - v4.0";
 	}
 	
 	public String start(String vaccine, int districtId,char eventCd) {
@@ -111,6 +116,30 @@ public class ServiceHandler {
 		} else {
 			return "Could not create backup!!";
 		}
+	}
+	
+	@GetMapping(value = "/get/{date}")
+	public List<StatsLocation> getDataFor29July(@PathVariable String date){
+		try {
+			List<Session> listChd = cowinHandler.getSessionsByDistrict(108, date);
+			List<Session> listMhl = cowinHandler.getSessionsByDistrict(496, date);
+			Set<Session> set = new HashSet<>();
+			set.addAll(listChd);
+			set.addAll(listMhl);			
+			List<StatsLocation> newList = new ArrayList<StatsLocation>();
+			for (Session session : set) {
+				if (session.getMinAgeLimit() == 18) {
+					newList.add(new StatsLocation(session.getName(), session.getAddress(), session.getFee(),
+							session.getAvailableCapacityDose1(), session.getAvailableCapacityDose2()));
+				}
+			}
+			return newList;
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
