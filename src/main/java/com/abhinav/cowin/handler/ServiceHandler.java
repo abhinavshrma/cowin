@@ -83,7 +83,7 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!! - v4.1";
+		return "Application is Up and Running!! - v4.2";
 	}
 	
 	public String start(String vaccine, int districtId,char eventCd) {
