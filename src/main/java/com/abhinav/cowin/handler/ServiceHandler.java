@@ -83,7 +83,7 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!! - v4.0";
+		return "Application is Up and Running!! - v4.1";
 	}
 	
 	public String start(String vaccine, int districtId,char eventCd) {
@@ -118,8 +118,8 @@ public class ServiceHandler {
 		}
 	}
 	
-	@GetMapping(value = "/get/{date}")
-	public List<StatsLocation> getDataFor29July(@PathVariable String date){
+	@GetMapping(value = "/get/{vaccine}/{date}")
+	public List<StatsLocation> getDataFor29July(@PathVariable String vaccine, @PathVariable String date){
 		try {
 			List<Session> listChd = cowinHandler.getSessionsByDistrict(108, date);
 			List<Session> listMhl = cowinHandler.getSessionsByDistrict(496, date);
@@ -128,7 +128,7 @@ public class ServiceHandler {
 			set.addAll(listMhl);			
 			List<StatsLocation> newList = new ArrayList<StatsLocation>();
 			for (Session session : set) {
-				if (session.getMinAgeLimit() == 18) {
+				if (session.getMinAgeLimit() == 18 && session.getVaccine().equalsIgnoreCase(vaccine)) {
 					newList.add(new StatsLocation(session.getName(), session.getAddress(), session.getFee(),
 							session.getAvailableCapacityDose1(), session.getAvailableCapacityDose2()));
 				}
