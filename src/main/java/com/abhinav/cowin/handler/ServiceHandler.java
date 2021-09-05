@@ -32,6 +32,7 @@ public class ServiceHandler {
 	CSVHandler csvHandler;
 	
 	private static String daysForDataFetch = "cowin.vaccine.data.days";
+	private static String receiveDailyMails = "cowin.vaccine.mail.receive";
 	
 	//@Scheduled(cron = "0 0 */4 * * *")
 	public void triggerHourly() {
@@ -66,7 +67,7 @@ public class ServiceHandler {
 		start("COVAXIN",108,'C');	
 	}
 	
-	@Scheduled(cron = "0 0 23 * * *")
+	@Scheduled(cron = "0 0 22 * * *")
 	public void takeDailyBackup() {
 		backUpData();	
 	}
@@ -83,7 +84,7 @@ public class ServiceHandler {
 	
 	@GetMapping(value = "/")
 	public String health() {
-		return "Application is Up and Running!! - v4.3";
+		return "Application is Up and Running!! - v5.0";
 	}
 	
 	public String start(String vaccine, int districtId,char eventCd) {
@@ -104,8 +105,11 @@ public class ServiceHandler {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Sending Mail........");
-		mailHandler.sendEmail(list,vaccine,districtId);
+		
+		if ("true".equals(Utils.propertiesUtility(receiveDailyMails))) {
+			System.out.println("Sending Mail........");
+			mailHandler.sendEmail(list, vaccine, districtId);
+		}
 		return "Started Successfully";
 	}
 	
