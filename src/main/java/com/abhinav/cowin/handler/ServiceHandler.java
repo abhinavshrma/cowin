@@ -67,7 +67,7 @@ public class ServiceHandler {
 		start("COVAXIN",108,'C');	
 	}
 	
-	@Scheduled(cron = "0 0 22 * * *")
+	@Scheduled(cron = "0 0 17 * * *")
 	public void takeDailyBackup() {
 		backUpData();	
 	}
